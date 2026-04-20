@@ -17,9 +17,13 @@ concurrency:
 
 jobs:
   radar:
-    runs-on: self-hosted
+    runs-on: ubuntu-slim
     permissions:
       contents: write
+    env:
+      # 自托管 runner 上 setup-python 默认会写 /Users/runner/hostedtoolcache，
+      # 当前机器并无 runner 用户，故改用 runner 工作目录下的可写路径。
+      AGENT_TOOLSDIRECTORY: ${{ github.workspace }}/../_tool
     steps:
       - name: Checkout
         uses: actions/checkout@v4
