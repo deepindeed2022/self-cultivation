@@ -1,0 +1,81 @@
+# 科研雷达配置
+
+# 时间窗口（小时），采集窗口起点 = now - lookback_hours
+lookback_hours: 24
+
+# 每源最多拉取多少条进入 LLM
+limits:
+  arxiv_max: 40
+  github_max_per_repo: 20
+  rss_max_per_feed: 15
+  # LLM 摘要最终保留的条目数上限
+  summarize_top_k: 25
+
+# 关键词（与 profile.md 提取的关键词合并做预过滤；留空则不过滤）
+keywords:
+  - LLM
+  - inference
+  - serving
+  - KV cache
+  - speculative
+  - quantization
+  - MoE
+  - attention
+  - CUDA
+  - TensorRT
+  - vLLM
+  - SGLang
+
+# Arxiv 设置
+arxiv:
+  categories:
+    - cs.CL # Computation and Language
+    - cs.LG # Machine Learning
+    - cs.AI # Artificial Intelligence
+    - cs.DC # Distributed, Parallel, and Cluster Computing
+    - cs.PF # Performance
+    - cs.OS # Operating Systems
+    #- cs.MA # Multiagent Systems
+  # 额外的 query（与 categories 取并集）
+  extra_queries: ["inference", "performance", "distributed computing"]
+
+# GitHub 仓库订阅
+github:
+  repos:
+    - NVIDIA/TensorRT-LLM
+    - NVIDIA/Model-Optimizer
+    - vllm-project/vllm
+    - sgl-project/sglang
+    - InternLM/lmdeploy
+  # 关注事件类型
+  include:
+    commits: true
+    releases: true
+    pulls: true   # 已合并的 PR
+
+# RSS 订阅（替代 X，用于跟进研究者 blog / Substack / HF Papers 等）
+rss:
+  feeds:
+    - name: HuggingFace Daily Papers
+      url: https://jamesg.blog/hf-papers.xml
+    - name: Lil'Log (Lilian Weng)
+      url: https://lilianweng.github.io/index.xml
+    - name: Sebastian Raschka - Ahead of AI
+      url: https://magazine.sebastianraschka.com/feed
+    - name: Simon Willison
+      url: https://simonwillison.net/atom/everything/
+    - name: Google AI Blog
+      url: https://blog.research.google/atom.xml
+
+# 报告与推送
+report:
+  # 保存路径（相对仓库根）
+  dir: reports
+  # advisor 参考最近 N 天的已有报告
+  advisor_recent_days: 5
+
+feishu:
+  # 卡片正文最大字符数，超过则截断并在卡片中提示"查看完整报告"
+  card_max_chars: 3500
+  # 卡片标题模板
+  title_template: "科研雷达 · {date}"

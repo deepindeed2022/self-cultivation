@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.local
+
+# cache 会由 actions/cache 维护，但允许本地生成
+.cache/*
+!.cache/.gitkeep
