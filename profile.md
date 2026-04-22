@@ -21,7 +21,7 @@
 
 ## 想避免的
 - 与推理无关的 CV 话题
-- 代码仓库中关联较弱的日常维护和版本管理，CI相关更新等
+- 关联较弱的日常维护、版本管理、日志清理、CI等
 
 ## 关键词（会自动与 config.yaml 的 keywords 合并，粗筛标题/摘要）
 keywords: LLM, inference, serving, KV cache, PagedAttention, speculative decoding, quantization, FP8, FP4, MoE, CUDA, Triton, TensorRT, vLLM, SGLang, LMDeploy, prefillonly, prefix-caching

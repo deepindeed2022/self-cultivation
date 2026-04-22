@@ -48,7 +48,7 @@ github:
     - sgl-project/sglang
     - InternLM/lmdeploy
     - NVIDIA/cutlass
-    - flashinfer/flashinfer
+    - flashinfer-ai/flashinfer
     - Dao-AILab/flash-attention
     - triton-lang/triton
     - deepseek-ai/DeepGEMM
