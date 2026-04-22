@@ -16,6 +16,8 @@ class Config:
     arxiv: dict[str, Any] = field(default_factory=dict)
     github: dict[str, Any] = field(default_factory=dict)
     rss: dict[str, Any] = field(default_factory=dict)
+    wechat: dict[str, Any] = field(default_factory=dict)
+    zhihu: dict[str, Any] = field(default_factory=dict)
     report: dict[str, Any] = field(default_factory=dict)
     feishu: dict[str, Any] = field(default_factory=dict)
 
@@ -30,6 +32,8 @@ class Config:
             arxiv=data.get("arxiv", {}) or {},
             github=data.get("github", {}) or {},
             rss=data.get("rss", {}) or {},
+            wechat=data.get("wechat", {}) or {},
+            zhihu=data.get("zhihu", {}) or {},
             report=data.get("report", {}) or {},
             feishu=data.get("feishu", {}) or {},
         )

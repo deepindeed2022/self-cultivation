@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Literal
 
 
-SourceKind = Literal["arxiv", "github", "rss"]
+SourceKind = Literal["arxiv", "github", "rss", "wechat", "zhihu"]
 
 
 @dataclass

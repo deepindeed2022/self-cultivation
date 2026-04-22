@@ -20,6 +20,8 @@ from radar.render.markdown import render_digest, render_report
 from radar.sources.arxiv import fetch_arxiv
 from radar.sources.github import fetch_github
 from radar.sources.rss import fetch_rss
+from radar.sources.wechat import fetch_wechat
+from radar.sources.zhihu import fetch_zhihu
 from radar.utils.cache import SeenCache
 from radar.utils.logging import get_logger
 
@@ -37,6 +39,12 @@ def _collect(cfg: Config) -> list[Item]:
         fetch_github(cfg.github, cfg.lookback_hours, int(limits.get("github_max_per_repo", 20)))
     )
     items.extend(fetch_rss(cfg.rss, cfg.lookback_hours, int(limits.get("rss_max_per_feed", 15))))
+    items.extend(
+        fetch_wechat(cfg.wechat, cfg.lookback_hours, int(limits.get("wechat_max_per_feed", 10)))
+    )
+    items.extend(
+        fetch_zhihu(cfg.zhihu, cfg.lookback_hours, int(limits.get("zhihu_max_per_blogger", 10)))
+    )
     return items
 
 

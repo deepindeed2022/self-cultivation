@@ -10,8 +10,10 @@ SECTION_TITLES = {
     "arxiv": "Arxiv 最新论文",
     "github": "GitHub 仓库动态",
     "rss": "研究者 / 博客",
+    "wechat": "微信公众号",
+    "zhihu": "知乎博主",
 }
-SECTION_ORDER = ["arxiv", "github", "rss"]
+SECTION_ORDER = ["arxiv", "github", "rss", "wechat", "zhihu"]
 
 
 def _group_by_source(items: list[Summarized]) -> dict[str, list[Summarized]]:
