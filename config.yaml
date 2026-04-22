@@ -25,6 +25,7 @@ keywords:
   - TensorRT
   - vLLM
   - SGLang
+  - flashinfer
 
 # Arxiv 设置
 arxiv:
@@ -37,16 +38,24 @@ arxiv:
     - cs.OS # Operating Systems
     #- cs.MA # Multiagent Systems
   # 额外的 query（与 categories 取并集）
-  extra_queries: ["inference", "performance", "distributed computing"]
+  extra_queries: ["inference", "performance", "distributed computing", "speculative decoding", "quantization"]
 
 # GitHub 仓库订阅
 github:
   repos:
     - NVIDIA/TensorRT-LLM
-    - NVIDIA/Model-Optimizer
     - vllm-project/vllm
     - sgl-project/sglang
     - InternLM/lmdeploy
+    - NVIDIA/cutlass
+    - flashinfer/flashinfer
+    - Dao-AILab/flash-attention
+    - triton-lang/triton
+    - deepseek-ai/DeepGEMM
+    - NVIDIA/Model-Optimizer
+    - vllm-project/llm-compressor
+    - huggingface/transformers
+
   # 关注事件类型
   include:
     commits: true
@@ -56,16 +65,24 @@ github:
 # RSS 订阅（替代 X，用于跟进研究者 blog / Substack / HF Papers 等）
 rss:
   feeds:
+    - name: Pytorch Blog
+      url: https://pytorch.org/blog/feed/
     - name: HuggingFace Daily Papers
       url: https://jamesg.blog/hf-papers.xml
+    - name: Google AI Blog
+      url: https://blog.research.google/atom.xml
+    - name: DeepMind Blog
+      url: https://www.deepmind.com/blog/rss.xml
+    - name: NVIDIA AI Blog
+      url: https://blogs.nvidia.com/feed/
     - name: Lil'Log (Lilian Weng)
       url: https://lilianweng.github.io/index.xml
     - name: Sebastian Raschka - Ahead of AI
       url: https://magazine.sebastianraschka.com/feed
     - name: Simon Willison
       url: https://simonwillison.net/atom/everything/
-    - name: Google AI Blog
-      url: https://blog.research.google/atom.xml
+    - name: Planet AI
+      url: https://planet-ai.net/rss.xml
 
 # 报告与推送
 report:
