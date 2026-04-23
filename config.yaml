@@ -50,6 +50,7 @@ github:
     - sgl-project/sglang
     - InternLM/lmdeploy
     - NVIDIA/cutlass
+    - ByteDance-Seed/Triton-distributed
     - flashinfer-ai/flashinfer
     - Dao-AILab/flash-attention
     - triton-lang/triton
