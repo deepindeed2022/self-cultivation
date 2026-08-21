@@ -135,6 +135,71 @@ def _fetch_merged_pulls(client, repo: str, since: datetime, limit: int) -> list[
     return items
 
 
+def _fetch_hot_issues(
+    client, repos: list[str], since: datetime, top_n: int
+) -> list[Item]:
+    """返回所有订阅仓库中近期仍活跃、评论数最高的 Issue。"""
+    if top_n <= 0:
+        return []
+
+    candidates: list[dict[str, Any]] = []
+    for repo in repos:
+        url = f"{API_ROOT}/search/issues"
+        q = f"repo:{repo} is:issue is:open updated:>={since.date().isoformat()}"
+        try:
+            data = get_json(
+                client,
+                url,
+                params={"q": q, "sort": "comments", "order": "desc", "per_page": 100},
+            )
+        except Exception as e:  # noqa: BLE001
+            log.error("GitHub issues 拉取失败 %s: %s", repo, e)
+            continue
+
+        for issue in (data or {}).get("items", []) or []:
+            # GitHub Search 的 is:issue 已排除 PR；保留该保护以兼容异常响应。
+            if issue.get("pull_request"):
+                continue
+            updated_at = _parse_dt(issue.get("updated_at"))
+            if updated_at and updated_at < since:
+                continue
+            issue["_repo"] = repo
+            candidates.append(issue)
+
+    candidates.sort(
+        key=lambda issue: (
+            int(issue.get("comments") or 0),
+            _parse_dt(issue.get("updated_at")) or datetime.min.replace(tzinfo=timezone.utc),
+        ),
+        reverse=True,
+    )
+
+    items: list[Item] = []
+    for issue in candidates[:top_n]:
+        repo = issue["_repo"]
+        comments = int(issue.get("comments") or 0)
+        updated_at = issue.get("updated_at")
+        number = issue.get("number")
+        items.append(
+            Item(
+                source="github",
+                source_label=f"{repo} · Issue · {comments} comments",
+                title=f"[{repo}] Issue #{number} {issue.get('title', '')}",
+                url=issue.get("html_url") or f"https://github.com/{repo}/issues/{number}",
+                published=_parse_dt(updated_at),
+                summary=(issue.get("body") or "")[:1500],
+                extra={
+                    "repo": repo,
+                    "kind": "issue",
+                    "number": number,
+                    "comments": comments,
+                    "updated_at": updated_at,
+                },
+            )
+        )
+    return items
+
+
 def fetch_github(github_cfg: dict[str, Any], lookback_hours: int, limit_per_repo: int) -> list[Item]:
     repos: list[str] = list(github_cfg.get("repos", []) or [])
     include = github_cfg.get("include", {}) or {}
@@ -156,5 +221,8 @@ def fetch_github(github_cfg: dict[str, Any], lookback_hours: int, limit_per_repo
                 out.extend(_fetch_releases(client, repo, since, release_n))
             if pr_n:
                 out.extend(_fetch_merged_pulls(client, repo, since, pr_n))
+        if include.get("issues", False):
+            top_n = int(github_cfg.get("hot_issues_top_n", 5))
+            out.extend(_fetch_hot_issues(client, repos, since, top_n))
     log.info("github: 拉到 %d 条（共 %d 仓库）", len(out), len(repos))
     return out

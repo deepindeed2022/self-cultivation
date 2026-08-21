@@ -5,13 +5,15 @@ lookback_hours: 24
 
 # 每源最多拉取多少条进入 LLM
 limits:
-  arxiv_max: 40
-  github_max_per_repo: 20
+  arxiv_max: 20
+  github_max_per_repo: 10
   rss_max_per_feed: 15
-  wechat_max_per_feed: 10
-  zhihu_max_per_blogger: 10
+  wechat_max_per_feed: 5
+  zhihu_max_per_blogger: 5
   # LLM 摘要最终保留的条目数上限
-  summarize_top_k: 25
+  summarize_top_k: 35
+  # 最终摘要中非 GitHub 条目的最小占比；候选不足时由 GitHub 条目补齐。
+  non_github_min_ratio: 0.2
 
 # 关键词（与 profile.md 提取的关键词合并做预过滤；留空则不过滤）
 keywords:
@@ -24,46 +26,52 @@ keywords:
   - MoE
   - attention
   - CUDA
-  - TensorRT
   - vLLM
   - SGLang
   - flashinfer
+  - deepgemm
+  - RL
 
 # Arxiv 设置
 arxiv:
   categories:
     - cs.CL # Computation and Language
-    - cs.LG # Machine Learning
-    - cs.AI # Artificial Intelligence
+    # - cs.LG # Machine Learning
+    # - cs.AI # Artificial Intelligence
     - cs.DC # Distributed, Parallel, and Cluster Computing
     - cs.PF # Performance
     - cs.OS # Operating Systems
-    #- cs.MA # Multiagent Systems
+    - cs.MA # Multiagent Systems
   # 额外的 query（与 categories 取并集）
   extra_queries: ["inference", "performance", "distributed computing", "speculative decoding", "quantization"]
 
 # GitHub 仓库订阅
 github:
   repos:
-    - NVIDIA/TensorRT-LLM
     - vllm-project/vllm
     - sgl-project/sglang
     - InternLM/lmdeploy
     - NVIDIA/cutlass
-    - ByteDance-Seed/Triton-distributed
     - flashinfer-ai/flashinfer
     - Dao-AILab/flash-attention
     - triton-lang/triton
-    - deepseek-ai/DeepGEMM
+    - vllm-project/DeepGEMM
     - NVIDIA/Model-Optimizer
     - vllm-project/llm-compressor
     - huggingface/transformers
+    - NVIDIA/TensorRT-LLM
+    - verl-project/verl
+    - lightseekorg/tokenspeed
+    - NVIDIA/Megatron-LM
 
   # 关注事件类型
   include:
     commits: true
     releases: true
     pulls: true   # 已合并的 PR
+    issues: true  # 近期活跃、按评论数排序的热门 Issue
+  # 跨所有订阅仓库选取评论最多的 N 个 Issue；0 可关闭。
+  hot_issues_top_n: 5
 
 # RSS 订阅（替代 X，用于跟进研究者 blog / Substack / HF Papers 等）
 rss:

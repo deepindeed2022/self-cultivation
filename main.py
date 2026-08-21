@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import os
 from datetime import date
 from pathlib import Path
@@ -48,13 +49,37 @@ def _collect(cfg: Config) -> list[Item]:
     return items
 
 
-def _rank_and_trim(items: list[Item], top_k: int) -> list[Item]:
-    # 最新的排前面（若无时间则置尾）
-    items.sort(
+def _rank_and_trim(items: list[Item], top_k: int, non_github_min_ratio: float) -> list[Item]:
+    """按时效选取条目，同时为非 GitHub 来源保留最小份额。"""
+    if top_k <= 0:
+        return []
+
+    # 热门 Issue 是 GitHub 源内已按评论数选出的 TOP N，保留其优先级，避免被时间排序挤掉。
+    hot_issues = [it for it in items if it.extra.get("kind") == "issue"]
+    github_others = [
+        it for it in items if it.source == "github" and it.extra.get("kind") != "issue"
+    ]
+    non_github = [it for it in items if it.source != "github"]
+    github_others.sort(
         key=lambda it: it.published.timestamp() if it.published else 0.0,
         reverse=True,
     )
-    return items[:top_k]
+    non_github.sort(
+        key=lambda it: it.published.timestamp() if it.published else 0.0,
+        reverse=True,
+    )
+
+    # 候选充足时，top_k=25 会保留至少 5 条非 GitHub 内容。
+    non_github_quota = math.ceil(top_k * max(0.0, min(1.0, non_github_min_ratio)))
+    picked_non_github = non_github[:non_github_quota]
+    picked_github = (hot_issues + github_others)[: top_k - len(picked_non_github)]
+
+    # 任一来源候选不足时，以另一来源补齐总条数。
+    remaining = top_k - len(picked_github) - len(picked_non_github)
+    if remaining > 0:
+        picked_non_github.extend(non_github[len(picked_non_github) : len(picked_non_github) + remaining])
+
+    return picked_github + picked_non_github
 
 
 def _build_report_url(today: date) -> str | None:
@@ -76,6 +101,9 @@ def run(config_path: Path, profile_path: Path, dry_run: bool) -> int:
     # 关键词过滤：profile.md keywords ∪ config.keywords
     keywords = sorted(set((cfg.keywords or []) + extract_profile_keywords(profile_path)))
     filtered = keyword_filter(raw, keywords)
+    # 热门 Issue 已由订阅仓库和讨论热度筛选；不因正文未命中关键词而漏跟踪。
+    hot_issues = [it for it in raw if it.extra.get("kind") == "issue"]
+    filtered = filtered + [it for it in hot_issues if it not in filtered]
     log.info("关键词过滤后 %d 条（关键词数=%d）", len(filtered), len(keywords))
 
     # 指纹去重（跨运行）
@@ -85,7 +113,8 @@ def run(config_path: Path, profile_path: Path, dry_run: bool) -> int:
     log.info("去重后 %d 条", len(deduped))
 
     top_k = int(cfg.limits.get("summarize_top_k", 25))
-    picked = _rank_and_trim(deduped, top_k)
+    non_github_min_ratio = float(cfg.limits.get("non_github_min_ratio", 0.2))
+    picked = _rank_and_trim(deduped, top_k, non_github_min_ratio)
     log.info("送入 LLM 摘要 %d 条", len(picked))
 
     if not picked:
